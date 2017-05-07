@@ -176,8 +176,6 @@ module.exports = {
 
                     var shouldAskQuestion = true
 
-                   
-
                     // we should not be asking a question
                     // if we have asked at least one question
                     // and we didn't get an answer (i.e the question thread was popped before we
