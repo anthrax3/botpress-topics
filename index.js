@@ -176,17 +176,24 @@ module.exports = {
 
                     var shouldAskQuestion = true
 
+                   
+
                     // we should not be asking a question
                     // if we have asked at least one question
                     // and we didn't get an answer (i.e the question thread was popped before we
                     // got an answer)
                     if (questionIndex > -1 && !event.answer) {
                         shouldAskQuestion = false
+                        console.log("User didn't answer aborting queue")
+                    } else {
+                        console.log("User Answered  " + event.answer)
                     }
 
                     questionIndex ++
 
-                    if (shouldAskQuestion && identifier.length > questionIndex) {
+                    if (shouldAskQuestion && questions.length > questionIndex) {
+
+                        console.log("Asking Question No " + questionIndex)
                         // If we should be asking a question and we have more questions
                         // start the next question
                         bp.pushThread(questions[questionIndex], event)
