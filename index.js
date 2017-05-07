@@ -163,12 +163,6 @@ module.exports = {
         // once its out of questions it will pop the thread stack returning the bot
         // to the original thread it came from
         //
-        // We would normally store the question index per user and 
-        // would need to add special handling of things like
-        // allowing the user to go back i.e they say back when being asked a question
-        // perhaps the state of the queue stack could be matched i.e "if the question queue thread is in the stack"
-        // and the user says "cancel" pop so that the the thread before the question queue
-        // is the current thread :)
         // 
         bp.createQuestionQueue = function(identifier, questions) {
             return bp.createThread(identifier, thread => {
