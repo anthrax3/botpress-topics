@@ -43,6 +43,10 @@ module.exports = {
             description: 'Adds basic thread and conversation management'
         })
 
+        bp.restartThread() = function(event) {
+            emitThreadEnter(bp, event)
+        }
+
         // In production it may be nice to throw an error if two threads have the same name
         bp.createThread = function(identifier, constructor) {
             
@@ -101,6 +105,38 @@ module.exports = {
             }
 
             oldHear(condition, callback)
+        }
+
+        //TODO: Make overridable componenet - this should be focused on lower-level threads? 
+        bp.createQuestion = function(question, matcher, match, notmatch) {
+            return bp.createThread(question, thread => {
+
+                thread.hear({
+                    type: 'enter_thread'
+                }, event => {
+                    // Normally we would use the more genric method but since this is a prototype YOLO
+                    bp.messenger.sendText(event.user.id, question)
+                })
+
+                thread.hear({
+                    type: 'message',
+                    text: matcher
+                }, event => {
+                    match(event)
+
+                    // Pop it to avoid the handler below triggering
+                    // I'm sure there is a better way
+                    bp.popThread() 
+                })
+
+                thread.hear({
+                    type: 'message',
+                    text: /.+/
+                }, event => {
+                    notmatch(event)
+                    bp.restartThread() // Ask them again
+                })
+            })
         }
     },
     ready: function(bp) {
