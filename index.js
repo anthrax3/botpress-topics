@@ -43,7 +43,7 @@ module.exports = {
             description: 'Adds basic thread and conversation management'
         })
 
-        bp.restartThread() = function(event) {
+        bp.restartThread = function(event) {
             emitThreadEnter(bp, event)
         }
 
@@ -118,15 +118,18 @@ module.exports = {
                     bp.messenger.sendText(event.user.id, question)
                 })
 
+                // Because of the differences between Bottr and Botpress a match won't stop
+                // later hear blocks from being called, so we specify it to prevent it from
+                // being called automatically
+                //
+                // We should fix this behaviour in botpress
+                //
                 thread.hear({
                     type: 'message',
                     text: matcher
-                }, event => {
+                }, (event, next) => {
                     match(event)
-
-                    // Pop it to avoid the handler below triggering
-                    // I'm sure there is a better way
-                    bp.popThread() 
+                    bp.popThread(event) 
                 })
 
                 thread.hear({
@@ -134,14 +137,11 @@ module.exports = {
                     text: /.+/
                 }, event => {
                     notmatch(event)
-                    bp.restartThread() // Ask them again
+                    bp.restartThread(event)
                 })
             })
         }
     },
-    ready: function(bp) {
-
-
-    }, 
+    ready: function(bp) {}
 }
 
