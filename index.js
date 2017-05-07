@@ -136,6 +136,7 @@ module.exports = {
                     type: 'message',
                     text: matcher
                 }, (event, next) => {
+                    event.answer = event.text
                     match(event)
                     bp.popThread(event) 
                 })
@@ -168,15 +169,30 @@ module.exports = {
             return bp.createThread(identifier, thread => {
 
                 var questionIndex = -1
-
+                
                 thread.hear({
                     type: 'enter_thread'
                 }, event => {
+
+                    var shouldAskQuestion = true
+
+                    // we should not be asking a question
+                    // if we have asked at least one question
+                    // and we didn't get an answer (i.e the question thread was popped before we
+                    // got an answer)
+                    if (questionIndex > -1 && !event.answer) {
+                        shouldAskQuestion = false
+                    }
+
                     questionIndex ++
 
-                    if (identifier.length > questionIndex) {
+                    if (shouldAskQuestion && identifier.length > questionIndex) {
+                        // If we should be asking a question and we have more questions
+                        // start the next question
                         bp.pushThread(questions[questionIndex])
                     } else {
+                        // otherwise reset the queue and pop the thread
+                        questionIndex = -1
                         bp.popThread()
                     }
                 })
