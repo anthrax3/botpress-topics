@@ -1,0 +1,18 @@
+{
+  "name": "echo-bot",
+  "version": "0.0.1",
+  "description": "A bot that likes to repeat what you say",
+  "main": "index.js",
+  "dependencies": {
+    "botpress": "^0.2.2",
+    "botpress-messenger": "^2.0.11",
+    "botpress-cfm": "1.0"
+  },
+  "scripts": {
+    "start": "botpress start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "James Campbell",
+  "license": "AGPL-3.0",
+  "homepage": ""
+}
