@@ -138,14 +138,16 @@ module.exports = {
                 }, (event, next) => {
                     event.answer = event.text
                     match(event)
+                    console.log("Match popping a thread")
                     bp.popThread(event) 
                 })
 
                 thread.hear({
                     type: 'message',
                     text: /.+/
-                }, event => {
+                }, (event, next) => {
                     notmatch(event)
+                    console.log("Not a match restarting thread")
                     bp.restartThread(event)
                 })
             })
