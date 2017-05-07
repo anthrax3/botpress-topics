@@ -1,3 +1,4 @@
+
 module.exports = function(bp) {
   bp.middlewares.load()
   var count = 0
@@ -24,8 +25,24 @@ module.exports = function(bp) {
   })
 
   var formThread = bp.createQuestionQueue("signupForm", [questionThread, questionThread2])
+  var ASK_THREAD_ID = "ask" // See below
 
-  var askThread = bp.createThread("ask", thread => {
+  bp.hear({
+      type: 'message',
+      thread: bp.ANY_THREAD,
+      text: 'back'
+  }, (event, next) => {
+
+      if (event.thread == ASK_THREAD_ID) {
+        //TODO: We could have a leave thread event to allow
+        // clean up to happen and to avoid code like this
+        count --
+      }
+      
+      bp.popThread(event)
+  })
+
+  var askThread = bp.createThread(ASK_THREAD_ID, thread => {
     thread.hear({
       type: 'enter_thread'
     }, event => {
@@ -47,21 +64,6 @@ module.exports = function(bp) {
        count ++;
        bp.pushThread(thread.id, event)
     })
-  })
-
-  bp.hear({
-      type: 'message',
-      thread: bp.ANY_THREAD,
-      text: 'back'
-  }, (event, next) => {
-
-      if (event.thread == askThread) {
-        //TODO: We could have a leave thread event to allow
-        // clean up to happen and to avoid code like this
-        count --
-      }
-      
-      bp.popThread(event)
   })
 
   bp.hear({
