@@ -49,7 +49,7 @@ module.exports = function(bp) {
       bp.popToRootThread(event)
   })
 
-  thread.hear({
+  bp.hear({
       type: 'message',
       thread: bp.ANY_THREAD,
       text: 'back'
