@@ -108,6 +108,14 @@ module.exports = {
         }
 
         //TODO: Make overridable componenet - this should be focused on lower-level threads? 
+        //
+        // High level function which defines thread which ask questions and will go
+        // down code path a if answer matches or b if it doesnt
+        //
+        // if it matches it will pop the thread stack back to where user was
+        //
+        // if it doesn't it will restart thread so they are re-asked the question
+        //
         bp.createQuestion = function(question, matcher, match, notmatch) {
             return bp.createThread(question, thread => {
 
@@ -138,6 +146,45 @@ module.exports = {
                 }, event => {
                     notmatch(event)
                     bp.restartThread(event)
+                })
+            })
+        }
+
+        //TODO: Make overridable componenet - this should be focused on lower-level threads? 
+        // 
+        // This creates a thread which will present a form or a queue of questions
+        // 
+        // Everytime this thread is entered it will as kthe next question
+        // it will push the thread of each question onto the stack
+        //
+        // when the question is answered it will pop triggering this thread to be entered
+        // causing it to then ask the next question
+        //
+        // once its out of questions it will pop the thread stack returning the bot
+        // to the original thread it came from
+        //
+        // We would normally store the question index per user and 
+        // would need to add special handling of things like
+        // allowing the user to go back i.e they say back when being asked a question
+        // perhaps the state of the queue stack could be matched i.e "if the question queue thread is in the stack"
+        // and the user says "cancel" pop so that the the thread before the question queue
+        // is the current thread :)
+        // 
+        bp.createQuestionQueue = function(identifier, questions) {
+            return bp.createThread(identifier, thread => {
+
+                var questionIndex = -1
+
+                thread.hear({
+                    type: 'enter_thread'
+                }, event => {
+                    questionIndex ++
+
+                    if (identifier.length > questionIndex) {
+                        bp.pushThread(questions[questionIndex])
+                    } else {
+                        bp.popThread()
+                    }
                 })
             })
         }
