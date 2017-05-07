@@ -11,15 +11,6 @@ module.exports = function(bp) {
       bp.popToRootThread(event)
   })
 
-  bp.hear({
-      type: 'message',
-      thread: bp.ANY_THREAD,
-      text: 'back'
-  }, event => {
-      count --
-      bp.popThread(event)
-  })
-
   var questionThread = bp.createQuestion("How old are you ?", /\d+/, event => {
      bp.messenger.sendText(event.user.id, "You don't look half bad")
   }, event =>{
@@ -57,6 +48,22 @@ module.exports = function(bp) {
        bp.pushThread(thread.id, event)
     })
   })
+
+  bp.hear({
+      type: 'message',
+      thread: bp.ANY_THREAD,
+      text: 'back'
+  }, (event, next) => {
+
+      if (event.thread == askThread) {
+        //TODO: We could have a leave thread event to allow
+        // clean up to happen and to avoid code like this
+        count --
+      }
+      
+      bp.popThread(event)
+  })
+
   bp.hear({
     type: 'postback',
     text: 'GET_STARTED'
