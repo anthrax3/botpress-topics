@@ -1,0 +1,26 @@
+{
+  "name": "botpress-cfm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "botpress": {},
+  "version-manager": {
+    "warn": "Can't migrate existing database, please see https://gist.github.com/slvnperron/9a3027f4d798c7d6b6b6a9b9b6bdfa7b",
+    "botpress-check": ">= 0.1 < 1",
+    "botpress-update": "^0.x",
+    "module-downgrade": "~1.0.x"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/botpress/botpress-cfm.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/botpress/botpress-cfm/issues"
+  },
+  "homepage": "https://github.com/botpress/botpress-cfm#readme"
+}
