@@ -12,6 +12,25 @@ module.exports = function(bp) {
       bp.popToRootThread(event)
   })
 
+  var ASK_THREAD_ID = "ask" // See below
+
+  bp.hear({
+      type: 'message',
+      thread: bp.ANY_THREAD,
+      text: 'back'
+  }, (event, next) => {
+
+      console.log("Heard the user wanted to go back so popping thread")
+
+      if (event.thread == ASK_THREAD_ID) {
+        //TODO: We could have a leave thread event to allow
+        // clean up to happen and to avoid code like this
+        count --
+      }
+      
+      bp.popThread(event)
+  })
+
   var questionThread = bp.createQuestion("How old are you ?", /\d+/, event => {
      bp.messenger.sendText(event.user.id, "You don't look half bad")
   }, event =>{
@@ -25,22 +44,6 @@ module.exports = function(bp) {
   })
 
   var formThread = bp.createQuestionQueue("signupForm", [questionThread, questionThread2])
-  var ASK_THREAD_ID = "ask" // See below
-
-  bp.hear({
-      type: 'message',
-      thread: bp.ANY_THREAD,
-      text: 'back'
-  }, (event, next) => {
-
-      if (event.thread == ASK_THREAD_ID) {
-        //TODO: We could have a leave thread event to allow
-        // clean up to happen and to avoid code like this
-        count --
-      }
-      
-      bp.popThread(event)
-  })
 
   var askThread = bp.createThread(ASK_THREAD_ID, thread => {
     thread.hear({
