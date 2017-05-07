@@ -25,7 +25,7 @@ module.exports = {
         var incomingMiddleware = function(event, next) {
 
             if (!currentThread) {
-                bp.pushThread(ROOT_THREAD_ID, event)
+                bp.popToRootThread(event)
             }
 
             event.thread = currentThread
@@ -84,7 +84,7 @@ module.exports = {
             }
         }
 
-        bp.popToRoootThread = function(event) {
+        bp.popToRootThread = function(event) {
 
             console.log("Popping to root")
 
