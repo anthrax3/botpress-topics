@@ -1,4 +1,3 @@
-
 module.exports = function(bp) {
   bp.middlewares.load()
   var count = 0
