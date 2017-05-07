@@ -12,14 +12,14 @@ module.exports = {
 
             console.log("Sending enter_thread for " + currentThread + " thread")
 
-            bp.middlewares.sendIncoming({
+            bp.middlewares.sendIncoming(Object.assign({}, event, {
                 thread: currentThread,
                 platform: event.platform,
                 type: 'enter_thread',
                 user: event.user,
                 text: currentThread,
                 raw: currentThread
-            })
+            }))
         }
 
         var incomingMiddleware = function(event, next) {
@@ -189,11 +189,11 @@ module.exports = {
                     if (shouldAskQuestion && identifier.length > questionIndex) {
                         // If we should be asking a question and we have more questions
                         // start the next question
-                        bp.pushThread(questions[questionIndex])
+                        bp.pushThread(questions[questionIndex], event)
                     } else {
                         // otherwise reset the queue and pop the thread
                         questionIndex = -1
-                        bp.popThread()
+                        bp.popThread(event)
                     }
                 })
             })
