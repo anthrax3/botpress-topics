@@ -30,13 +30,13 @@ module.exports = function(bp) {
     }, event => {
 
       thread.location = event.location
-      thread.type = event.type
+      thread.location_type = event.location_type
       thread.distance = event.distance
 
       var text = "Here’s some "
 
-      if (thread.type) {
-        text += thread.type + " "
+      if (thread.location_type) {
+        text += thread.location_type + " "
       }
 
       if (thread.distance) {
@@ -62,7 +62,7 @@ module.exports = function(bp) {
       var type = type_regexr.exec(event.text)[1]
 
       event.location = thread.location
-      event.type = type
+      event.location_type = typlocation_typee
       event.distance = thread.distance
 
       bp.pushThread(thread.id, event)
@@ -74,7 +74,7 @@ module.exports = function(bp) {
       var distance = type_regexr.exec(event.text)[1]
 
       event.location = thread.location
-      event.type = thread.type
+      event.location_type = thread.location_type
       event.distance = distance
 
       bp.pushThread(thread.id, event)
@@ -83,9 +83,9 @@ module.exports = function(bp) {
     thread.hear({
       type: 'postback',
       text: more_details_postback
-    }), event => {
+    }, event => {
       bp.pushThread(detailsThread, event)
-    }
+    })
   })
 
   bp.hear({
