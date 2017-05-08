@@ -39,10 +39,33 @@ module.exports = function(bp) {
       })
   })
 
-  var askLocation = bp.createQuestion('Please share or type your location', /.+/, event => {
-    bp.pushThread(searchThread) 
-  }, event => {
-    bp.messenger.sendText(event.user.id, "Sorry I don't understand that location")
+  var askLocation = bp.createThread('location', thread => {
+
+    thread.hear({
+        type: 'enter_thread'
+    }, event => {
+      bp.messenger.sendText(event.user.id, 'Please enter or share your location', {
+        quick_replies: [
+         { title: "location", content_type: "location" } // Workaround Botpress expecting title
+        ]
+      })
+    })
+
+    thread.hear({
+      type: 'location'
+    }, event => {
+      var attachment = event.message.attachments[0].payload
+      event.location = attachment.title
+      bp.pushThread(searchThread, event) 
+    })
+
+    thread.hear({
+      type: 'message',
+      text: /.+/
+    }, event => {
+      event.location = event.text
+      bp.pushThread(searchThread, event) 
+    })
   })
 
   // In the beggining take user to the search
