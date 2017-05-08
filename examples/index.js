@@ -1,9 +1,6 @@
 module.exports = function(bp) {
   bp.middlewares.load()
 
-  // TODO: Handle expiring older threads
-  // TODO: Handle user retreving old results
-
   var searchThread = bp.createThread('search', thread => {
 
     var more_details_postback = 'MORE_DETAILS'
