@@ -5,8 +5,9 @@
   "main": "index.js",
   "dependencies": {
     "botpress": "^0.2.2",
-    "botpress-messenger": "^2.0.11",
-    "botpress-cfm": "1.0"
+    "botpress-api.ai": "^2.0.6",
+    "botpress-cfm": "1.0",
+    "botpress-messenger": "^2.0.11"
   },
   "scripts": {
     "start": "botpress start",

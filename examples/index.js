@@ -1,43 +1,11 @@
 module.exports = function(bp) {
   bp.middlewares.load()
 
-  // GLOBAL COMMANDS
-
-  bp.hear({
-    thread: function (thread) {
-      return thread !== root
-    },
-    text: 'resturants nearby'
-  }, event => {
-    bp.popToRootThread(event)
-  })
-
-  // -------------
-
-  // SUB-THREADS
-
-  var enterLocation = bp.createQuestion('Please share or type your location', /.+/, event => {}, event => {
-    bp.messenger.sendText(event.user.id, "Sorry I don't understand that location")
-  })
-
-  var detailsThread = bp.createThread('details', thread => {
-    thread.hear({
-      type: 'enter_thread'
-    }, event => {
-      bp.messenger.sendText(event.user.id, 'Opens at 8am, closes at 10pm. Opened right now.')
-    })
-
-    thread.hear({
-      text: 'tommorow'
-    }, event => {
-      bp.messenger.sendText(event.user.id, 'Tomorrow it opens at 10am')
-    })
-  })
+  // TODO: Handle expiring older threads
+  // TODO: Handle user retreving old results
 
   var searchThread = bp.createThread('search', thread => {
 
-    var type_regexr = /show only (.+)/
-    var distance_regexr = /make it (.+)/
     var more_details_postback = 'MORE_DETAILS'
 
     thread.hear({
@@ -69,10 +37,47 @@ module.exports = function(bp) {
           payload: more_details_postback
         }]
       })
+  })
+
+  var askLocation = bp.createQuestion('Please share or type your location', /.+/, event => {
+    bp.pushThread(searchThread) 
+  }, event => {
+    bp.messenger.sendText(event.user.id, "Sorry I don't understand that location")
+  })
+
+  // In the beggining take user to the search
+  bp.hear({
+      'type': 'postback',
+      'text': 'GET_STARTED'
+  }, event => {
+    bp.pushThread(askLocation, event)
+  })
+
+  // Allow user to trigger search from anywhere
+  bp.hear({
+    thread: bp.ANY_THREAD,
+    'nlp.action': 'search'
+  }, event => {
+    bp.pushThread(askLocation, event)
+  })
+
+  var detailsThread = bp.createThread('details', thread => {
+
+      thread.hear({
+        type: 'enter_thread'
+      }, event => {
+        bp.messenger.sendText(event.user.id, 'Opens at 8am, closes at 10pm. Opened right now.')
+      })
+
+      thread.hear({
+        'nlp.action': 'tommorow'
+      }, event => {
+        bp.messenger.sendText(event.user.id, 'Tomorrow it opens at 10am')
+      })
     })
 
     thread.hear({
-      text: type_regexr
+      'nlp.action': 'type'
     }, event => {
       var type = type_regexr.exec(event.text)[1]
 
@@ -84,7 +89,7 @@ module.exports = function(bp) {
     })
 
     thread.hear({
-      text: distance_regexr
+      'nlp.action': 'distance'
     }, event => {
       var distance = distance_regexr.exec(event.text)[1]
 
@@ -102,39 +107,4 @@ module.exports = function(bp) {
       bp.pushThread(detailsThread, event)
     })
   })
-
-  // ----------
-
-  // Micro interactions
-
-  bp.hear({
-    thread: bp.ANY_THREAD,
-    text: 'thanks'
-  }, event => {
-    bp.messenger.sendText(event.user.id, "You're welcome")
-  })
-
-  // -----------
-
-  // Root Interaction
-
-  bp.hear({
-    type: 'enter_thread'
-  }, event => {
-
-    // If we are resuming this thread as we got an answer
-    // then lets carry on
-    if (event.answer) {
-
-      event.location = event.answer
-      bp.pushThread(searchThread, event)
-
-    } else {
-      bp.pushThread(enterLocation, event)
-    }
-  })
-
-  // ---------------
-
-  //TODO: "Mexican restaurant" and "Actually show my italian restaurants again"
 }
