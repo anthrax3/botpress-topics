@@ -92,4 +92,4 @@ to what it was originally doing and send a message depending on their answer.
 
 ## Note
 
-Please make sure on the middleware screen the middelware for this module is before the `hear` middlewear.
+Please make sure on the middleware screen the middleware for this module is before the `hear` middlewear.
