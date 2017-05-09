@@ -3,6 +3,7 @@
 //
 
 var package = require('../package.json')
+var DEFAULT_MAX_TOPIC_STACK = 10
 var TOPIC_STACK = []
 var CURRENT_TOPIC = null
 var MAIN_TOPIC_ID = "main"
@@ -38,6 +39,11 @@ function createTopic(identifier, constructor) {
 }
 
 function startTopic(identifier, event) {
+
+    if (TOPIC_STACK.length > DEFAULT_MAX_TOPIC_STACK) {
+        TOPIC_STACK.shift()
+    }
+
     if (CURRENT_TOPIC) {
         TOPIC_STACK.push(CURRENT_TOPIC)
     }
