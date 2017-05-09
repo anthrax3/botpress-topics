@@ -96,7 +96,7 @@ By default we allow you to push `10` topics at most for performance reasons. Whe
 this in mind and design it in a way that it will only push a topic when the concept you are discussing with your user
  changes.
 
-When you hit this limit, we will drop the older topics. So you bot will only remember `10` latest topics at a time. If you use `endTopic`
+When you hit this limit, we will drop the older topics. So you bot will only remember the `10` latest topics at a time. If you use `endTopic`
 more than `10` times you will end up back in the `main` topic even if we've dropped it.
 
 ## Note
