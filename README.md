@@ -27,8 +27,8 @@ start the topic causing a `start_topic` event to be emitted.
 To end a topic just use the `endTopic` method, this will
 go to the previous topic causing a `start_topic` event to be emitted.
 
-Your top level `hear` methods belong to the `root` topic, you can
-go back to them by using the `returnToRootTopic` this will end any
+Your top level `hear` methods belong to the `main` topic, you can
+go back to them by using the `returnMainTopic` this will end any
 currently started topics.
 
 If you want to have your bot listen to certain global actions by the user
@@ -90,4 +90,6 @@ In this example when the user presses get started, we ask for their age and wait
 If they don't type a correct age we send a message. when we eventually get an age, we return to bot back
 to what it was originally doing and send a message depending on their answer.
 
-We have a more comprehensive example in the [examples](examples/) folder.
+## Note
+
+Please make sure on the middleware screen the middelware for this module is before the `hear` middlewear.

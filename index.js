@@ -1,110 +1,116 @@
+// This is the code for the Botpress Topic module based on Bottr's Topics
+// Written by James Campbell
+//
 
-// Example of threading system based on Bottr's Topics
+var package = require('../package.json')
+var TOPIC_STACK = []
+var CURRENT_TOPIC = null
+var MAIN_TOPIC_ID = "main"
+var START_TOPIC_EVENT = "start_topic"
+
+function createTopicHear(bp) {
+    return function (condition, callback) {
+        condition.topic = identifier
+        bp.hear(condition, callback)
+    }
+}
+
+function wrapBotHear(hearMethod) {
+    return function(condition, callback) {
+
+        if (!condition.topic) {
+            condition.topic = MAIN_TOPIC
+        }
+
+        hearMethod(condition, callback)
+    }
+}
+
+function createTopic(identifier, constructor) {
+    var topic = {
+        id: identifier,
+        hear: createTopicHear(bp)
+    }
+
+    constructor(topic)
+
+    return identifier
+}
+
+function startTopic(identifier, event) {
+    if (CURRENT_TOPIC) {
+        TOPIC_STACK.push(CURRENT_TOPIC)
+    }
+    
+    CURRENT_TOPIC = identifier
+    emitStartTopic(bp, event)
+}
+
+function returnToMainTopic(event) {
+    TOPIC_STACK = []
+    CURRENT_TOPIC = MAIN_TOPIC_ID
+    emitStartTopic(bp, event)
+}
+
+function endTopic(event) {
+    if (TOPIC_STACK.length > 0) {
+        CURRENT_TOPIC = TOPIC_STACK.pop()
+        emitStartTopic(bp, event)
+    } else {
+        // This shouldn't happen
+        // but incase it does take the bot back
+        // to the main topic
+        bp.returnToMainTopic()
+    }
+}
+
+function emitStartTopic(bp, event) {
+    bp.middlewares.sendIncoming(Object.assign({}, event, {
+        topic: CURRENT_TOPIC,
+        platform: event.platform,
+        type: 'start_topic',
+        user: event.user,
+        text: CURRENT_TOPIC,
+        raw: CURRENT_TOPIC
+    }))
+}
+
+function incomingMiddleware(event, next) {
+
+    if (!CURRENT_TOPIC) {
+        bp.returnToMainTopic(event)
+    }
+
+    event.topic = CURRENT_TOPIC
+    next()
+}
+
+function startTopics(bp) {
+
+    bp.middlewares.register({
+        name: 'topics',
+        type: 'incoming',
+        order: 100,
+        handler: incomingMiddleware,
+        module: package.name,
+        description: 'Middleware for Topics'
+    })
+
+    // Register all of the methods for this Module
+    bp.createTopic = createTopic
+    bp.startTopic = startTopic
+    bp.endTopic = endTopic
+    bp.returnToRootTopic = returnToRootTopic
+
+    // We wrap the original hear method so that
+    // it defaults to listening to the "main" topic
+    bp.hear = wrapBotHear(bp.hear)    
+}
+
 module.exports = {
     config: { },
     init: function(bp) {
-
-        var threadStack = []
-        var currentThread = null
-        var ROOT_THREAD_ID = "root"
-
-        function emitThreadEnter(bp, event) {
-
-            console.log("Sending enter_thread for " + currentThread + " thread")
-
-            bp.middlewares.sendIncoming(Object.assign({}, event, {
-                thread: currentThread,
-                platform: event.platform,
-                type: 'enter_thread',
-                user: event.user,
-                text: currentThread,
-                raw: currentThread
-            }))
-        }
-
-        var incomingMiddleware = function(event, next) {
-
-            if (!currentThread) {
-                bp.popToRootThread(event)
-            }
-
-            event.thread = currentThread
-            console.log(event.type + " event received for " + event.thread + " thread")
-
-            next()
-        }
-
-        bp.middlewares.register({
-            name: 'threads', // friendly name
-            type: 'incoming', // either incoming or outgoing
-            order: 100, // arbitrary number
-            handler: incomingMiddleware, // the middleware function
-            module: 'botpress-cfm', // the name of the module, if any
-            description: 'Adds basic thread and conversation management'
-        })
-
-        // In production it may be nice to throw an error if two threads have the same name
-        bp.createThread = function(identifier, constructor) {
-            
-            var thread = {
-                id: identifier,
-                hear: function(condition, callback) {
-                    condition.thread = identifier
-                    bp.hear(condition, callback)
-                }
-            }
-
-            constructor(thread)
-
-            return identifier
-        }
-
-        bp.pushThread = function(identifier, event) {
-
-            console.log("Pushing " + identifier + " thread")
-
-            if (currentThread) {
-                threadStack.push(currentThread)
-            }
-            
-            currentThread = identifier
-            emitThreadEnter(bp, event)
-        }
-
-        bp.popThread = function(event) {
-
-            if (threadStack.length > 0) {
-                console.log("Popping " + currentThread + " thread")
-                currentThread = threadStack.pop()
-                emitThreadEnter(bp, event)
-            } else {
-                bp.popToRootThread()
-            }
-        }
-
-        bp.popToRootThread = function(event) {
-
-            console.log("Popping to root")
-
-            threadStack = []
-            currentThread = ROOT_THREAD_ID
-            emitThreadEnter(bp, event)
-        }
-
-        // Constant user can pass into hears to match any thread to have global handler
-        bp.ANY_THREAD = /.+/ 
-
-        var oldHear = bp.hear
-        bp.hear = function(condition, callback) {
-
-            // To have a global hears call the user needs to pass in { thread: bp.ANY_THREAD }
-            if (!condition.thread) {
-                condition.thread = ROOT_THREAD_ID
-            }
-
-            oldHear(condition, callback)
-        }
+        startTopics(bp)
     },
     ready: function(bp) {}
 }
-
