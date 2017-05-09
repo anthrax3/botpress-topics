@@ -28,7 +28,7 @@ To end a topic just use the `endTopic` method, this will
 go to the previous topic causing a `start_topic` event to be emitted.
 
 Your top level `hear` methods belong to the `main` topic, you can
-go back to them by using the `returnMainTopic` this will end any
+go back to them by using the `returnToMainTopic` this will end any
 currently started topics.
 
 If you want to have your bot listen to certain global actions by the user
