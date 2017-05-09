@@ -90,6 +90,15 @@ In this example when the user presses get started, we ask for their age and wait
 If they don't type a correct age we send a message. when we eventually get an age, we return to bot back
 to what it was originally doing and send a message depending on their answer.
 
+## Max Topics
+
+By default we allow you to push `10` topics at most for performance reasons. When designing your bot you should bear
+this in mind and design it in a way that it will only push a topic when the concept you are dicussing changes.
+
+When you hit this limit, we will drop the older topics. So you bot will only remember `10` at a time. If you use `endTopic`
+once you reach the end of the list of the topics the bot remembers you will end up back in the `main` topic even if
+we've dropped it.
+
 ## Note
 
 Please make sure on the middleware screen the middleware for this module is before the `hear` middlewear.
