@@ -93,11 +93,11 @@ to what it was originally doing and send a message depending on their answer.
 ## Max Topics
 
 By default we allow you to push `10` topics at most for performance reasons. When designing your bot you should bear
-this in mind and design it in a way that it will only push a topic when the concept you are dicussing changes.
+this in mind and design it in a way that it will only push a topic when the concept you are discussing with your user
+ changes.
 
-When you hit this limit, we will drop the older topics. So you bot will only remember `10` at a time. If you use `endTopic`
-once you reach the end of the list of the topics the bot remembers you will end up back in the `main` topic even if
-we've dropped it.
+When you hit this limit, we will drop the older topics. So you bot will only remember `10` latest topics at a time. If you use `endTopic`
+more than `10` times you will end up back in the `main` topic even if we've dropped it.
 
 ## Note
 
