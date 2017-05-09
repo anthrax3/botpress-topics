@@ -97,7 +97,7 @@ this in mind and design it in a way that it will only push a topic when the conc
  changes.
 
 When you hit this limit, we will drop the older topics. So you bot will only remember the `10` latest topics at a time. If you use `endTopic`
-more than `10` times you will end up back in the `main` topic even if we've dropped it.
+more than `10` times you will end up back in the `main` topic even if your bot had forgotten it.
 
 ## Note
 
