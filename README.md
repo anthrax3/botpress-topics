@@ -45,13 +45,13 @@ hear({
 ```
 var ageTopic = bp.createTopic('topic-name', topic => {
 
-    thread.hear({
+    topic.hear({
         type: 'start_topic'
     }, event => {
       bp.messenger.sendText(event.user.id, 'Whats your age ?')
     })
 
-    thread.hear({
+    topic.hear({
       type: 'message',
       text: /\d/
     }, event => {
@@ -59,7 +59,7 @@ var ageTopic = bp.createTopic('topic-name', topic => {
       bp.endTopic(event)
     })
 
-    thread.hear({
+    topic.hear({
       type: 'message',
       text: /.+/
     }, event => {
