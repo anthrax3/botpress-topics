@@ -21,7 +21,7 @@ This method takes a string for the topic's identifier and a callback
 method to configure it. The method will return the identifier for the
 topic which you will need later.
 
-To start a topic just use the `pushTopic` method, this will
+To start a topic just use the `startTopic` method, this will
 start the topic causing a `start_topic` event to be emitted.
 
 To end a topic just use the `endTopic` method, this will
