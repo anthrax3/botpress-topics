@@ -70,9 +70,9 @@ var ageTopic = bp.createTopic('topic-name', topic => {
 bp.hear({
     type: 'start_topic'
 }, event => {
-    if (event.age > 50) {
+    if (event.age >= 50) {
         bp.messenger.sendText(event.user.id, 'You don't look a day over !')
-    } else {
+    } else if (event.age < 50) {
         bp.messenger.sendText(event.user.id, 'Act your age not your shoe size !')
     }
 })
