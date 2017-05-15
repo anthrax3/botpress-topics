@@ -60,7 +60,7 @@ function startTopics(bp) {
     //
     function startTopic(identifier, event) {
 
-        updateTopicContext(context => {
+        updateTopicContext(event, context => {
             context.stack.push(context.topic)
             context.topic = identifier
             _emitStartTopic(identifier, event)
@@ -74,7 +74,7 @@ function startTopics(bp) {
     //
     function returnToMainTopic(event) {
         
-        updateTopicContext(context => {
+        updateTopicContext(event, context => {
             _resetContext(context, event)
         })
     }
@@ -86,7 +86,7 @@ function startTopics(bp) {
     //
     function endTopic(event) {
 
-        updateTopicContext(context => {
+        updateTopicContext(event, context => {
 
             if (context.stack.length > 0) {
                 context.topic = context.stack.pop()
@@ -116,7 +116,7 @@ function startTopics(bp) {
     //
     // Once done this function will save it
     //
-    function updateTopicContext(callback) {
+    function updateTopicContext(event, callback) {
 
         var userIdentifier = (event.user && event.user.id) || event.raw.from
 
@@ -165,7 +165,7 @@ function startTopics(bp) {
     // event object
     //
     function _incomingMiddleware(event, next) {
-        updateTopicContext(context => {
+        updateTopicContext(event, context => {
 
             if (!context.topic) {
                 bp.returnToMainTopic(event)
