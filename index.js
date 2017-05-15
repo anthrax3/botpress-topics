@@ -2,7 +2,6 @@
 // Written by James Campbell
 //
 
-var package = require('../package.json')
 var DEFAULT_MAX_TOPIC_STACK = 10
 var KVS_CONTEXT_ID = 'topics'
 var MAIN_TOPIC_ID = "main"
@@ -182,7 +181,7 @@ function startTopics(bp) {
         type: 'incoming',
         order: 100,
         handler: _incomingMiddleware,
-        module: package.name,
+        module: 'botpress-topics',
         description: 'Middleware for Topics'
     })
 
@@ -190,7 +189,7 @@ function startTopics(bp) {
     bp.createTopic = createTopic
     bp.startTopic = startTopic
     bp.endTopic = endTopic
-    bp.returnToRootTopic = returnToRootTopic
+    bp.returnToMainTopic = returnToMainTopic
 
     // We wrap the original hear method so that
     // it defaults to listening to the "main" topic
