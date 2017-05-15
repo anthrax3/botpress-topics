@@ -118,7 +118,6 @@ function startTopics(bp) {
     //
     function updateTopicContext(event, callback) {
 
-        var bp = bp
         var userIdentifier = (event.user && event.user.id) || event.raw.from
 
         bp.db.kvs.get(KVS_CONTEXT_ID, userIdentifier).then(context => {
@@ -134,7 +133,7 @@ function startTopics(bp) {
             }
 
             callback(context)
-            bp.kvs.set(KVS_CONTEXT_ID, context)
+            bp.db.kvs.set(KVS_CONTEXT_ID, context)
         })
     }
 
