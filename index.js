@@ -61,7 +61,7 @@ function startTopics(bp) {
     //
     function startTopic(identifier, event) {
 
-        updateTopicContext((context => {
+        updateTopicContext(context => {
             context.stack.push(context.topic)
             context.topic = identifier
             _emitStartTopic(identifier, event)
