@@ -122,8 +122,10 @@ function startTopics(bp) {
 
         bp.db.kvs.get(KVS_CONTEXT_ID, userIdentifier).then(context => {
 
-            if (!context.stack) {
-                context.stack = []
+            if (!context) {
+                context = {
+                    stack: []
+                }
             }
 
             if (context.stack.length > DEFAULT_MAX_TOPIC_STACK) {
