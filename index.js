@@ -61,23 +61,10 @@ function startTopics(bp) {
     //
     function startTopic(identifier, event) {
 
-        bp.db.kvs.get(KVS_CONTEXT_ID).then(context => {
-
-            if (!context.stack) {
-                context.stack = []
-            }
-
-            if (context.stack.length > DEFAULT_MAX_TOPIC_STACK) {
-                context.stack.shift()
-            }
-
-            if (context.topic) {
-                context.stack.push(context.topic)
-            }
-            
+        updateTopicContext((context => {
+            context.stack.push(context.topic)
             context.topic = identifier
             _emitStartTopic(identifier, event)
-            bp.kvs.set(KVS_CONTEXT_ID, context)
         })
     }
 
@@ -87,12 +74,9 @@ function startTopics(bp) {
     // This method takes the event it was started from.
     //
     function returnToMainTopic(event) {
-        bp.db.kvs.get(KVS_CONTEXT_ID).then(context => {
-            context.stack = []
-            context.topic = MAIN_TOPIC_ID
-            _emitStartTopic(MAIN_TOPIC_ID, event)
-
-            bp.kvs.set(KVS_CONTEXT_ID, context)
+        
+        updateTopicContext(context => {
+            _resetContext(context, event)
         })
     }
 
@@ -103,24 +87,28 @@ function startTopics(bp) {
     //
     function endTopic(event) {
 
-        bp.db.kvs.get(KVS_CONTEXT_ID).then(context => {
-
-            if (!context.stack) {
-                context.stack = []
-            }
+        updateTopicContext(context => {
 
             if (context.stack.length > 0) {
                 context.topic = context.stack.pop()
                 _emitStartTopic(context.topic, event)
-                bp.kvs.set(KVS_CONTEXT_ID, context)
 
             } else {
                 // This shouldn't happen
                 // but incase it does take the bot back
                 // to the main topic
-                bp.returnToMainTopic()
+                _resetContext(context, event)
             }
         })
+    }
+
+    // Internal method for resetting the
+    // context back to it's initial state
+    //
+    function _resetContext(event) {
+        context.stack = []
+        context.topic = MAIN_TOPIC_ID
+        _emitStartTopic(MAIN_TOPIC_ID, event)
     }
 
     // Fetches the current topic context from the
@@ -131,6 +119,21 @@ function startTopics(bp) {
     //
     function updateTopicContext(callback) {
 
+        var userIdentifier = (event.user && event.user.id) || event.raw.from
+
+        bp.db.kvs.get(KVS_CONTEXT_ID, userIdentifier).then(context => {
+
+            if (!context.stack) {
+                context.stack = []
+            }
+
+            if (context.stack.length > DEFAULT_MAX_TOPIC_STACK) {
+                context.stack.shift()
+            }
+
+            callback(context)
+            bp.kvs.set(KVS_CONTEXT_ID, context)
+        })
     }
 
     // This emits the start_topic event
@@ -163,13 +166,13 @@ function startTopics(bp) {
     // event object
     //
     function _incomingMiddleware(event, next) {
-        bp.db.kvs.get('current_topic').then(current_topic => {
-            if (!current_topic) {
+        updateTopicContext(context => {
+
+            if (!context.topic) {
                 bp.returnToMainTopic(event)
-                current_topic = MAIN_TOPIC
             }
 
-            event.topic = current_topic
+            event.topic = context.topic
             next()
         })
     }
