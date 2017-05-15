@@ -3,7 +3,7 @@
 //
 
 var DEFAULT_MAX_TOPIC_STACK = 10
-var KVS_CONTEXT_ID = 'topics'
+var KVS_CONTEXT_ID = 'botpress_topics'
 var MAIN_TOPIC_ID = "main"
 var START_TOPIC_EVENT = "start_topic"
 
@@ -120,12 +120,14 @@ function startTopics(bp) {
 
         var userIdentifier = (event.user && event.user.id) || event.raw.from
 
-        bp.db.kvs.get(KVS_CONTEXT_ID, userIdentifier).then(context => {
+        bp.db.kvs.get(KVS_CONTEXT_ID, userIdentifier).then(raw_context => {
 
-            if (!context) {
+            if (!raw_context) {
                 context = {
                     stack: []
                 }
+            } else {
+                context = JSON.parse(raw_context)
             }
 
             if (context.stack.length > DEFAULT_MAX_TOPIC_STACK) {
@@ -133,7 +135,7 @@ function startTopics(bp) {
             }
 
             callback(context)
-            bp.db.kvs.set(KVS_CONTEXT_ID, context)
+            bp.db.kvs.set(KVS_CONTEXT_ID, JSON.stringify(context))
         })
     }
 
