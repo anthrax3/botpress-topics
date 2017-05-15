@@ -18,7 +18,7 @@ function startTopics(bp) {
         return function(condition, callback) {
 
             if (!condition.topic) {
-                condition.topic = MAIN_TOPIC
+                condition.topic = MAIN_TOPIC_ID
             }
 
             hearMethod(condition, callback)
