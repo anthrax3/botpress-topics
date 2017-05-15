@@ -104,7 +104,7 @@ function startTopics(bp) {
     // Internal method for resetting the
     // context back to it's initial state
     //
-    function _resetContext(event) {
+    function _resetContext(context, event) {
         context.stack = []
         context.topic = MAIN_TOPIC_ID
         _emitStartTopic(MAIN_TOPIC_ID, event)
