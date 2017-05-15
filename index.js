@@ -124,7 +124,8 @@ function startTopics(bp) {
 
             if (!raw_context) {
                 context = {
-                    stack: []
+                    stack: [],
+                    topic: MAIN_TOPIC_ID
                 }
             } else {
                 context = JSON.parse(raw_context)
@@ -135,7 +136,7 @@ function startTopics(bp) {
             }
 
             callback(context)
-            bp.db.kvs.set(KVS_CONTEXT_ID, JSON.stringify(context))
+            bp.db.kvs.set(KVS_CONTEXT_ID, JSON.stringify(context), userIdentifier)
         })
     }
 
@@ -170,11 +171,6 @@ function startTopics(bp) {
     //
     function _incomingMiddleware(event, next) {
         updateTopicContext(event, context => {
-
-            if (!context.topic) {
-                bp.returnToMainTopic(event)
-            }
-
             event.topic = context.topic
             next()
         })
