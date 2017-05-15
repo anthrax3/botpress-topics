@@ -147,7 +147,7 @@ function startTopics(bp) {
     // But overwrite all the properties needed to let the
     // code know this is a start_topic event
     //
-    function _setCurr_emitStartTopicentTopic(identifier, event) {
+    function _emitStartTopic(identifier, event) {
         bp.middlewares.sendIncoming(Object.assign({}, event, {
             topic: identifier,
             platform: event.platform,
