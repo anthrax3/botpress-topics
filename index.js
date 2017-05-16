@@ -168,7 +168,6 @@ function startTopics(bp) {
     // event object
     //
     function _incomingMiddleware(event, next) {
-        console.log('Update')
         updateTopicContext(event, context => {
             event.topic = context.topic
             next()
