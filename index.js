@@ -58,12 +58,12 @@ function startTopics(bp) {
     // the identifier of the topic to start and
     // the event it was started from.
     //
-    function startTopic(identifier, event) {
+    function startTopic(identifier, event, payload) {
 
         updateTopicContext(event, context => {
             context.stack.push(context.topic)
             context.topic = identifier
-            _emitStartTopic(identifier, event)
+            _emitStartTopic(identifier, event, payload)
         })
     }
 
@@ -72,10 +72,10 @@ function startTopics(bp) {
     // 
     // This method takes the event it was started from.
     //
-    function returnToMainTopic(event) {
+    function returnToMainTopic(event, payload) {
         
         updateTopicContext(event, context => {
-            _resetContext(context, event)
+            _resetContext(context, event, payload)
         })
     }
 
@@ -84,19 +84,19 @@ function startTopics(bp) {
     // 
     // This method takes the event it was started from.
     //
-    function endTopic(event) {
+    function endTopic(event, payload) {
 
         updateTopicContext(event, context => {
 
             if (context.stack.length > 0) {
                 context.topic = context.stack.pop()
-                _emitStartTopic(context.topic, event)
+                _emitStartTopic(context.topic, event, payload)
 
             } else {
                 // This shouldn't happen
                 // but incase it does take the bot back
                 // to the main topic
-                _resetContext(context, event)
+                _resetContext(context, event, payload)
             }
         })
     }
@@ -104,10 +104,10 @@ function startTopics(bp) {
     // Internal method for resetting the
     // context back to it's initial state
     //
-    function _resetContext(context, event) {
+    function _resetContext(context, event, payload) {
         context.stack = []
         context.topic = MAIN_TOPIC_ID
-        _emitStartTopic(MAIN_TOPIC_ID, event)
+        _emitStartTopic(MAIN_TOPIC_ID, event, payload)
     }
 
     // Fetches the current topic context from the
@@ -144,21 +144,19 @@ function startTopics(bp) {
     // when a topic is started or returned
     // to.
     //
-    // We try to preserve any properties the calling
-    // logic added to the event the topic was started from.
+    // We allow the calling topic to pass data to the next topic
+    // via the payload option
     //
-    // But overwrite all the properties needed to let the
-    // code know this is a start_topic event
-    //
-    function _emitStartTopic(identifier, event) {
-        bp.middlewares.sendIncoming(Object.assign({}, event, {
+    function _emitStartTopic(identifier, event, payload) {
+        bp.middlewares.sendIncoming({
             topic: identifier,
             platform: event.platform,
             type: 'start_topic',
             user: event.user,
+            from: event.from,
             text: identifier,
-            raw: identifier
-        }))
+            raw: payload || {}
+        })
     }
 
     // The main middlewear code.
@@ -170,6 +168,7 @@ function startTopics(bp) {
     // event object
     //
     function _incomingMiddleware(event, next) {
+        console.log('Update')
         updateTopicContext(event, context => {
             event.topic = context.topic
             next()
