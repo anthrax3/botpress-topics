@@ -63,6 +63,8 @@ function startTopics(bp) {
         updateTopicContext(event, context => {
             context.stack.push(context.topic)
             context.topic = identifier
+            
+        }, context => {
             _emitStartTopic(identifier, event, payload)
         })
     }
@@ -76,6 +78,8 @@ function startTopics(bp) {
         
         updateTopicContext(event, context => {
             _resetContext(context, event, payload)
+        }, context => {
+            _emitStartTopic(context.topic, event, payload)
         })
     }
 
@@ -90,14 +94,14 @@ function startTopics(bp) {
 
             if (context.stack.length > 0) {
                 context.topic = context.stack.pop()
-                _emitStartTopic(context.topic, event, payload)
-
             } else {
                 // This shouldn't happen
                 // but incase it does take the bot back
                 // to the main topic
                 _resetContext(context, event, payload)
             }
+        }, context => {
+            _emitStartTopic(context.topic, event, payload)
         })
     }
 
@@ -107,7 +111,6 @@ function startTopics(bp) {
     function _resetContext(context, event, payload) {
         context.stack = []
         context.topic = MAIN_TOPIC_ID
-        _emitStartTopic(MAIN_TOPIC_ID, event, payload)
     }
 
     // Fetches the current topic context from the
@@ -116,7 +119,7 @@ function startTopics(bp) {
     //
     // Once done this function will save it
     //
-    function updateTopicContext(event, callback) {
+    function updateTopicContext(event, update, done) {
 
         var userIdentifier = (event.user && event.user.id) || event.raw.from
 
@@ -131,12 +134,22 @@ function startTopics(bp) {
                 context = JSON.parse(raw_context)
             }
 
+            update(context)
+
             if (context.stack.length > DEFAULT_MAX_TOPIC_STACK) {
                 context.stack.shift()
             }
 
-            callback(context)
-            bp.db.kvs.set(KVS_CONTEXT_ID, JSON.stringify(context), userIdentifier)
+            if (!context.topic) {
+                context.topic = MAIN_TOPIC_ID
+            }
+
+            bp.db.kvs.set(KVS_CONTEXT_ID, JSON.stringify(context), userIdentifier).then(raw_context => {
+                
+                if (done) {
+                    done(JSON.parse(raw_context))
+                }
+            })
         })
     }
 
@@ -168,6 +181,9 @@ function startTopics(bp) {
     // event object
     //
     function _incomingMiddleware(event, next) {
+
+        console.log(JSON.stringify(event))
+
         updateTopicContext(event, context => {
             event.topic = context.topic
             next()
