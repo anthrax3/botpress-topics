@@ -161,6 +161,7 @@ function startTopics(bp) {
     // via the payload option
     //
     function _emitStartTopic(identifier, event, payload) {
+
         bp.middlewares.sendIncoming({
             topic: identifier,
             platform: event.platform,
@@ -182,11 +183,18 @@ function startTopics(bp) {
     //
     function _incomingMiddleware(event, next) {
 
-        console.log(JSON.stringify(event))
-
         updateTopicContext(event, context => {
             event.topic = context.topic
-            next()
+
+            console.log(event.platform)
+            console.log(event.type)
+            console.log(event.text)
+            console.log(event.topic)
+            console.log(event.raw)
+            console.log(event['nlp.action'])
+            console.log("***")
+
+            next(event)
         })
     }
 
